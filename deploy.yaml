@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: persistent-volume
+spec:
+  capacity:
+    storage: 10Gi
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  gcePersistentDisk:
+    pdName: persistentdisk
+    fsType: ext4
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: persistent-volume-claim
+spec:
+  volumeName: persistent-volume
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  
+  storageClassName: standard
+  selector:
+    matchLabels:
+      name: persistent-volume
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: c2-deployement
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: container2
+  template:
+    metadata:
+      labels:
+        app: container2
+    spec:
+      containers:
+        - name: container2
+          image: us-central1-docker.pkg.dev/kubernetes-429102/k8s/container2:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7000
+          volumeMounts:
+            - name: data-volume
+              mountPath: /usr/src/app/VYANSI_PV_dir
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: persistent-volume-claim
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: con2-service
+spec:
+  selector:
+    app: container2
+  ports:
+    - protocol: TCP
+      port: 7000
+      targetPort: 7000

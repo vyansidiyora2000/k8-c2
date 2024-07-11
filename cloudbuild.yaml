@@ -1,0 +1,32 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    [
+      'build',
+      '-t',
+      'us-central1-docker.pkg.dev/kubernetes-429102/k8s/container2:latest',
+      '-f',
+      'dockerfile',
+      '.',
+    ]
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/kubernetes-429102/k8s/container2:latest']
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+    - 'delete'
+    - 'pod'
+    - '-l'
+    - 'app=container2'
+  env:
+    - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=kubernetes'
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+    - 'apply'
+    - '-f'
+    - 'deploy.yaml'
+  env:
+    - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=kubernetes'
+options:
+  logging: CLOUD_LOGGING_ONLY
