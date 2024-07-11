@@ -20,6 +20,7 @@ app.post('/calculate', (req, res) => {
         return res.status(404).json({ file, error: 'File not found.' });
     }
 
+    
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Error reading the file.' });
