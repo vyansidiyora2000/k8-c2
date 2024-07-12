@@ -15,12 +15,13 @@ app.post('/calculate', (req, res) => {
         return res.status(400).json({ file: null, error: 'Invalid JSON input.' });
     }
 
+
+    
     const filePath = path.join('./VYANSI_PV_dir', file);
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({ file, error: 'File not found.' });
     }
 
-    
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Error reading the file.' });
